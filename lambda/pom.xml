@@ -28,6 +28,20 @@
         <artifactId>aws-lambda-java-events</artifactId>
         <version>3.16.1</version>
     </dependency>
+
+    <!-- https://mvnrepository.com/artifact/software.amazon.awssdk/bedrockruntime -->
+    <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>bedrockruntime</artifactId>
+        <version>2.33.0</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/software.amazon.awssdk/auth -->
+    <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>auth</artifactId>
+        <version>2.33.0</version>
+    </dependency>
   </dependencies>
 
   <build>
