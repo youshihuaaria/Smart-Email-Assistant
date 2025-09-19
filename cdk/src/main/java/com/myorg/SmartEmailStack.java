@@ -1,6 +1,7 @@
 package com.myorg;
 
 import java.util.List;
+import java.util.Map;
 
 import software.amazon.awscdk.CfnOutput;
 import software.amazon.awscdk.Duration;
@@ -22,15 +23,21 @@ public class SmartEmailStack extends Stack {
   public SmartEmailStack(final Construct scope, final String id, StackProps props) {
     super(scope, id, props);
 
-    Function helloFunction = Function.Builder.create(this, "HelloFunction")
+    Function generateEmailFunction = Function.Builder.create(this, "GenerateEmailFunction")
         .runtime(Runtime.JAVA_17)
         .handler("com.myorg.lambda.LambdaHandler")
-        .memorySize(512)
-        .timeout(Duration.seconds(30))
+        .memorySize(1024)
+        .timeout(Duration.seconds(30)) 
         .code(Code.fromAsset("../lambda/target/lambda-1.0-SNAPSHOT.jar"))
+        .environment(Map.of(
+            "MODEL_ID", "anthropic.claude-3-sonnet-20240229-v1:0",
+            "ANTHROPIC_VERSION", "bedrock-2023-05-31",
+            "MAX_TOKENS", "1024",
+            "TEMPERATURE", "0.2",
+            "TOP_K", "50"))
         .build();
 
-    helloFunction.getRole().addToPrincipalPolicy(PolicyStatement.Builder.create()
+    generateEmailFunction.getRole().addToPrincipalPolicy(PolicyStatement.Builder.create()
         .effect(Effect.ALLOW)
         .actions(List.of("bedrock:InvokeModel"))
         .resources(List.of("*"))
@@ -40,18 +47,16 @@ public class SmartEmailStack extends Stack {
         .allowMethods(Cors.ALL_METHODS)
         .build();
 
-    RestApi api = RestApi.Builder.create(this, "HelloApi")
-        .restApiName("HelloApi")
-        .description("Test: minimal API backed by AWS Lambda")
+    RestApi api = RestApi.Builder.create(this, "EmailApi")
+        .restApiName("EmailApi")
+        .description("Generate Email API")
         .defaultCorsPreflightOptions(corsOptions)
         .build();
 
-    LambdaIntegration hellIntegration = new LambdaIntegration(helloFunction);
+    LambdaIntegration generateEmailIntegration = new LambdaIntegration(generateEmailFunction);
 
-    api.getRoot().addMethod("GET", hellIntegration);
-
-    Resource hello = api.getRoot().addResource("hello");
-    hello.addMethod("GET", hellIntegration);
+    Resource email = api.getRoot().addResource("email");
+    email.addMethod("POST", generateEmailIntegration);
 
     CfnOutput.Builder.create(this, "ApiURL").description("Base URL for the REST API").value(api.getUrl()).build();
   }

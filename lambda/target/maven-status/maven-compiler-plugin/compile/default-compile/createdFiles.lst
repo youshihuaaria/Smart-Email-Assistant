@@ -1,1 +1,6 @@
+com/myorg/lambda/RequestUtil.class
+com/myorg/lambda/Claude3Prompts.class
+com/myorg/lambda/Bedrock.class
+com/myorg/lambda/LambdaUtil.class
+com/myorg/lambda/BedrockClaude3Sonnet.class
 com/myorg/lambda/LambdaHandler.class

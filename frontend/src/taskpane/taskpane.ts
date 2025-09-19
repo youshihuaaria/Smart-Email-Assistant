@@ -1,18 +1,28 @@
-/* global Office console */
+const API_URL = "https://spu9s5demk.execute-api.us-west-2.amazonaws.com/prod/hello";
 
-export async function insertText(text: string) {
-  // Write text to the cursor point in the compose surface.
-  try {
-    Office.context.mailbox.item?.body.setSelectedDataAsync(
-      text,
-      { coercionType: Office.CoercionType.Text },
-      (asyncResult: Office.AsyncResult<void>) => {
-        if (asyncResult.status === Office.AsyncResultStatus.Failed) {
-          throw asyncResult.error.message;
-        }
-      }
-    );
-  } catch (error) {
-    console.log("Error: " + error);
+Office.onReady((info) => {
+  if (info.host === Office.HostType.Outlook) {
+    document.getElementById("generate-reply").onclick = generateReply;
   }
+})
+
+async function generateReply() {
+  const promptInput: HTMLInputElement | null = document.getElementById("prompt") as HTMLInputElement;
+  if (!promptInput) {
+    console.error("Prompt input not found");
+    return;
+  }
+  const prompt = promptInput.value;
+
+  let mailBody = "";
+  try {
+    mailBody = await getMailContent(Office.context.mailbox.item);
+  } catch (err) {
+    mailBody = "(Could not read mail body)";
+  }
+
+  document.getElementById("result").innerText = "Calling API... please wait";
+
+
 }
+
